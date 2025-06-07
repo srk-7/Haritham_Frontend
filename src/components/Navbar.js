@@ -66,7 +66,7 @@ export default function Navbar() {
                   className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm"
                 >
                   <FaIdBadge className="mr-2" />
-                  User Details
+                  Profile
                 </Link>
                 <button
                   onClick={handleLogout}
