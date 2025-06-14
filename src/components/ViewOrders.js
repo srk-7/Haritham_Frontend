@@ -75,49 +75,8 @@ const StatusUpdateModal = ({ isOpen, onClose, currentStatus, onUpdateStatus, loa
   );
 };
 
-// Buyer Details Modal Component
-const BuyerDetailsModal = ({ isOpen, onClose, buyerDetails }) => {
-  if (!isOpen || !buyerDetails) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Buyer Details</h3>
-        
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm text-gray-600">Name</p>
-            <p className="font-medium">{buyerDetails.name}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Employee ID</p>
-            <p className="font-medium">{buyerDetails.empId}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Mobile Number</p>
-            <p className="font-medium">{buyerDetails.mobile}</p>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Seller Order Card Component
 const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
-  const [showBuyerDetails, setShowBuyerDetails] = useState(false);
-  const [buyerDetails, setBuyerDetails] = useState(null);
-  const [loadingBuyerDetails, setLoadingBuyerDetails] = useState(false);
-
   const getStatusColor = (status) => {
     switch (status) {
       case "ORDERED": return "bg-yellow-100 text-yellow-800";
@@ -135,19 +94,6 @@ const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
       case "PLACED_ON_HARITHAM_TABLE": return "On Haritham Table";
       case "COLLECTED": return "Collected";
       default: return status;
-    }
-  };
-
-  const handleViewBuyerDetails = async () => {
-    setLoadingBuyerDetails(true);
-    try {
-      const response = await axios.get(`http://localhost:8081/api/users/${order.buyerId}`);
-      setBuyerDetails(response.data);
-      setShowBuyerDetails(true);
-    } catch (error) {
-      toast.error("Failed to fetch buyer details");
-    } finally {
-      setLoadingBuyerDetails(false);
     }
   };
 
@@ -179,22 +125,9 @@ const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
           <span className="text-gray-600">Total Price:</span>
           <span className="font-medium text-green-600">₹{order.totalPrice}</span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between">
           <span className="text-gray-600">Buyer:</span>
-          <button
-            onClick={handleViewBuyerDetails}
-            disabled={loadingBuyerDetails}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-          >
-            {loadingBuyerDetails ? (
-              <span className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></span>
-            ) : (
-              <>
-                {order.buyerName}
-                <span className="text-xs">(View Details)</span>
-              </>
-            )}
-          </button>
+          <span className="font-medium">{order.buyerName}</span>
         </div>
       </div>
 
@@ -218,12 +151,6 @@ const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
           {isUpdating ? "Updating..." : "Update Status"}
         </button>
       )}
-
-      <BuyerDetailsModal
-        isOpen={showBuyerDetails}
-        onClose={() => setShowBuyerDetails(false)}
-        buyerDetails={buyerDetails}
-      />
     </div>
   );
 };

@@ -12,15 +12,51 @@ export default function BuyPage() {
   const [error, setError] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [outOfStockItems, setOutOfStockItems] = useState({});
+
+  // Function to check and remove out-of-stock items
+  const checkOutOfStockItems = () => {
+    const now = Date.now();
+    const newOutOfStockItems = { ...outOfStockItems };
+    let hasChanges = false;
+
+    // Remove items that have been out of stock for more than 60 minutes
+    Object.entries(newOutOfStockItems).forEach(([productId, timestamp]) => {
+      if (now - timestamp > 60 * 60 * 1000) { // 60 minutes in milliseconds
+        delete newOutOfStockItems[productId];
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      setOutOfStockItems(newOutOfStockItems);
+    }
+  };
+
+  // Set up interval to check out-of-stock items
+  useEffect(() => {
+    const interval = setInterval(checkOutOfStockItems, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [outOfStockItems]);
 
   useEffect(() => {
     const fetchProductsAndSellers = async () => {
       try {
         const { data } = await axios.get("http://localhost:8081/api/products/all");
         const reversedProducts = Array.isArray(data) ? [...data].reverse() : [];
+        
+        // Update out-of-stock items
+        const newOutOfStockItems = { ...outOfStockItems };
+        reversedProducts.forEach(product => {
+          if (product.quantityAvailable === 0 && !outOfStockItems[product.id]) {
+            newOutOfStockItems[product.id] = Date.now();
+          }
+        });
+        setOutOfStockItems(newOutOfStockItems);
+
         setProducts(reversedProducts);
         setFilteredProducts(reversedProducts);
 
@@ -56,6 +92,18 @@ export default function BuyPage() {
   useEffect(() => {
     let filtered = [...products];
 
+    // Filter out items that have been out of stock for more than 60 minutes
+    filtered = filtered.filter(product => {
+      if (product.quantityAvailable === 0) {
+        const outOfStockTime = outOfStockItems[product.id];
+        if (!outOfStockTime || Date.now() - outOfStockTime <= 60 * 60 * 1000) {
+          return true; // Keep items that just went out of stock or within 60 minutes
+        }
+        return false; // Remove items that have been out of stock for more than 60 minutes
+      }
+      return true; // Keep all in-stock items
+    });
+
     // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(product =>
@@ -66,8 +114,8 @@ export default function BuyPage() {
     // Apply price range filter
     filtered = filtered.filter(
       product =>
-        product.pricePerUnit >= priceRange.min &&
-        product.pricePerUnit <= priceRange.max
+        (!priceRange.min || product.pricePerUnit >= priceRange.min) &&
+        (!priceRange.max || product.pricePerUnit <= priceRange.max)
     );
 
     // Apply category filter
@@ -78,7 +126,7 @@ export default function BuyPage() {
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, priceRange, selectedCategory, products]);
+  }, [searchQuery, priceRange, selectedCategory, products, outOfStockItems]);
 
   const handleBuy = () => {
     setShowSuccessModal(true);
@@ -187,7 +235,7 @@ export default function BuyPage() {
                     type="number"
                     value={priceRange.min}
                     onChange={(e) =>
-                      setPriceRange({ ...priceRange, min: Number(e.target.value) })
+                      setPriceRange({ ...priceRange, min: e.target.value ? Number(e.target.value) : "" })
                     }
                     className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Min"
@@ -197,7 +245,7 @@ export default function BuyPage() {
                     type="number"
                     value={priceRange.max}
                     onChange={(e) =>
-                      setPriceRange({ ...priceRange, max: Number(e.target.value) })
+                      setPriceRange({ ...priceRange, max: e.target.value ? Number(e.target.value) : "" })
                     }
                     className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Max"
