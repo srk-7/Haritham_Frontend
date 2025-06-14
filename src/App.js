@@ -13,48 +13,42 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-      <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout />}>
           {/* Public Routes */}
           <Route index element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-            <BuyPage/>
-            </PrivateRoute>
-          }
-        >
-          
-            {/* <Route path="dashboard" element={<Dashboard />} /> */}
-            <Route path="buy" element={<BuyPage />} />
-            {/* <Route path="sell" element={<SellPage/>}/> */}
-          {/* Add more protected routes here */}
-          </Route>
+          {/* Protected Routes */}
+          <Route
+            path="/buy"
+            element={
+              <PrivateRoute>
+                <BuyPage />
+              </PrivateRoute>
+            }
+          />
           
           <Route
-          path="/"
-          element={
-            <PrivateRoute><SellPage/></PrivateRoute>
-          }
-        >
-            <Route path="sell" element={<SellPage/>}/>
-          </Route>
+            path="/sell"
+            element={
+              <PrivateRoute>
+                <SellPage />
+              </PrivateRoute>
+            }
+          />
           
           <Route
-          path="/"
-          element={
-            <PrivateRoute><ProfilePage/></PrivateRoute>
-          }
-        >
-            <Route path="profile" element={<ProfilePage/>}/>
-        </Route>
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
 
-        {/* Not Found */}
-        <Route path="*" element={<NotFound />} />
+          {/* Not Found */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
