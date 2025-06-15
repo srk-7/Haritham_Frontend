@@ -89,7 +89,7 @@ export default function Navbar() {
           {/* Logo + Brand */}
           <Link to="/" className="flex items-center space-x-3 group">
             <img src={logo} alt="Haritham Logo" className="h-10 sm:h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
-            <div className="hidden sm:block">
+            <div>
               <span className="text-xl font-bold tracking-wide">Haritham</span>
               <p className="text-xs text-green-200">Farm Fresh Marketplace</p>
             </div>
@@ -221,16 +221,36 @@ export default function Navbar() {
                     <p className="text-xs text-green-200">{user.email}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full flex items-center space-x-3 px-4 py-3 bg-red-600/10 text-red-400 rounded-lg hover:bg-red-600/20 transition-colors duration-200"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
-                </button>
+                <div className="space-y-2">
+                  <Link
+                    to="/profile"
+                    className="w-full flex items-center space-x-3 px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors duration-200"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <User className="w-5 h-5" />
+                    <span>Profile</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setShowPasswordModal(true);
+                    }}
+                    className="w-full flex items-center space-x-3 px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors duration-200"
+                  >
+                    <Lock className="w-5 h-5" />
+                    <span>Update Password</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center space-x-3 px-4 py-3 bg-red-600/10 text-red-400 rounded-lg hover:bg-red-600/20 transition-colors duration-200"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Logout</span>
+                  </button>
+                </div>
               </div>
             </>
           ) : (

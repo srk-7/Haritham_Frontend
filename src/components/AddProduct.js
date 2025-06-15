@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Upload, AlertCircle, CheckCircle, X } from "lucide-react";
+import config from '../config';
 
 const AddProduct = ({ onSuccess }) => {
   const sellerId = Cookies.get("userId");
@@ -116,7 +117,7 @@ const AddProduct = ({ onSuccess }) => {
         sellerId
       };
 
-      await axios.post("http://localhost:8081/api/products/add", payload);
+      await axios.post(`${config.API_URL}/api/products/add`, payload);
       setSuccess("Product added successfully!");
 
       // Reset form

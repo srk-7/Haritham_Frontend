@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { RefreshCw, CheckCircle, BarChart2, Users } from 'lucide-react';
+import { RefreshCw, CheckCircle } from 'lucide-react';
 import config from '../config';
 
 // Modal Component for Status Update
@@ -101,17 +101,21 @@ const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Order #{order.id}</h3>
-          <p className="text-sm text-gray-500">
-            {new Date(order.orderDate).toLocaleDateString()} at{' '}
-            {new Date(order.orderDate).toLocaleTimeString()}
-          </p>
+      <div className="mb-4">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-gray-900 truncate">Order #{order.id}</h3>
+            <p className="text-sm text-gray-500">
+              {new Date(order.orderDate).toLocaleDateString()} at{' '}
+              {new Date(order.orderDate).toLocaleTimeString()}
+            </p>
+          </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-          {getStatusText(order.status)}
-        </span>
+        <div className="mt-2">
+          <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(order.status)}`}>
+            {getStatusText(order.status)}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-3 mb-4">
@@ -274,26 +278,6 @@ const ViewOrders = ({ sellerId }) => {
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-secondary-900 mb-2">Your Orders</h2>
           <p className="text-secondary-600">Manage and track your customer orders</p>
-          
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={() => {/* Add analytics handler */}}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
-              title="View Analytics"
-            >
-              <BarChart2 className="h-4 w-4" />
-              <span>Analytics</span>
-            </button>
-            
-            <button
-              onClick={() => {/* Add view buyers handler */}}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-secondary-100 text-secondary-600 hover:bg-secondary-200 transition-colors"
-              title="View Buyers"
-            >
-              <Users className="h-4 w-4" />
-              <span>View Buyers</span>
-            </button>
-          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

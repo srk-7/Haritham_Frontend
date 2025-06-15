@@ -2,12 +2,13 @@ import React from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 const DeleteProduct = ({ productId, onDeleted }) => {
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       axios
-        .delete(`http://localhost:8081/api/products/${productId}`)
+        .delete(`${config.API_URL}/api/products/${productId}`)
         .then(() => {
           toast.success("Product deleted successfully");
           onDeleted && onDeleted(); // Optionally trigger refresh
