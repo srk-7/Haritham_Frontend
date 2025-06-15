@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import { CheckCircle, Search, Filter, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import config from '../config';
 
 export default function BuyPage() {
   const [products, setProducts] = useState([]);
@@ -85,7 +86,7 @@ export default function BuyPage() {
   useEffect(() => {
     const fetchProductsAndSellers = async () => {
       try {
-        const { data } = await axios.get("http://localhost:8081/api/products/all");
+        const { data } = await axios.get(`${config.API_URL}/api/products/all`);
         const reversedProducts = Array.isArray(data) ? [...data].reverse() : [];
         
         setProducts(reversedProducts);
@@ -93,7 +94,7 @@ export default function BuyPage() {
 
         const sellerIds = [...new Set(reversedProducts.map(p => p.sellerId))];
         const sellerRequests = sellerIds.map(id =>
-          axios.get(`http://localhost:8081/api/users/${id}`).then(res => ({
+          axios.get(`${config.API_URL}/api/users/${id}`).then(res => ({
             id,
             name: res.data.name || res.data.username || "Unknown Seller",
           }))

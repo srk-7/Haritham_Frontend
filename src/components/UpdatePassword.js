@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import config from '../config';
 
 const UpdatePassword = ({ onSuccess }) => {
   const [form, setForm] = useState({
@@ -61,7 +62,7 @@ const UpdatePassword = ({ onSuccess }) => {
     const userId = Cookies.get('userId');
 
     try {
-      await axios.put(`http://localhost:8081/api/users/${userId}/password`, form, {
+      await axios.put(`${config.API_URL}/api/users/${userId}/password`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Password updated successfully!");

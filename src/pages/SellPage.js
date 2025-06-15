@@ -6,6 +6,7 @@ import { Package, Plus, ShoppingBag, AlertCircle, Pencil, Trash2, Eye, EyeOff } 
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
+import config from '../config';
 
 export default function SellPage() {
   const [view, setView] = useState("products");
@@ -35,7 +36,7 @@ export default function SellPage() {
   const fetchProducts = (sellerId) => {
     setIsLoading(true);
     axios
-      .get(`http://localhost:8081/api/products/seller/${sellerId}`)
+      .get(`${config.API_URL}/api/products/seller/${sellerId}`)
       .then((res) => {
         setProducts(res.data);
         setIsLoading(false);
@@ -48,7 +49,7 @@ export default function SellPage() {
 
   const handleDelete = () => {
     axios
-      .delete(`http://localhost:8081/api/products/delete/${productToDelete}`)
+      .delete(`${config.API_URL}/api/products/delete/${productToDelete}`)
       .then(() => {
         setShowDeleteConfirm(false);
         fetchProducts(userId);
@@ -59,7 +60,7 @@ export default function SellPage() {
   const handleUpdateSubmit = (e) => {
     e.preventDefault();
     axios
-      .put(`http://localhost:8081/api/products/update/${editProduct.id}`, editProduct)
+      .put(`${config.API_URL}/api/products/update/${editProduct.id}`, editProduct)
       .then(() => {
         setShowEditModal(false);
         fetchProducts(userId);
@@ -199,7 +200,7 @@ export default function SellPage() {
                         <button
                           onClick={() => {
                             axios
-                              .put(`http://localhost:8081/api/products/${product.id}/visibility?visible=${!product.visible}`)
+                              .put(`${config.API_URL}/api/products/${product.id}/visibility?visible=${!product.visible}`)
                               .then(() => {
                                 fetchProducts(userId);
                               })

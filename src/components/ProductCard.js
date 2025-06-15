@@ -3,6 +3,7 @@ import { ShoppingCart, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 export default function ProductCard({ product, sellerName, onBuy }) {
   const [showModal, setShowModal] = useState(false);
@@ -40,7 +41,7 @@ export default function ProductCard({ product, sellerName, onBuy }) {
     };
 
     try {
-      const response = await fetch("http://localhost:8081/api/orders/place", {
+      const response = await fetch(`${config.API_URL}/api/orders/place`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

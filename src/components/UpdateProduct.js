@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 const UpdateProduct = ({ productId }) => {
     const [product, setProduct] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8081/api/products/${productId}`)
+        axios.get(`${config.API_URL}/api/products/${productId}`)
             .then(response => {
                 setProduct(response.data);
             })
@@ -21,7 +22,7 @@ const UpdateProduct = ({ productId }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put(`http://localhost:8081/api/products/${productId}`, product)
+        axios.put(`${config.API_URL}/api/products/${productId}`, product)
             .then(response => {
                 alert('Product updated successfully');
             })

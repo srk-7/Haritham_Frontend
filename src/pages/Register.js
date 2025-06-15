@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -71,7 +72,7 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:8081/api/users/register", {
+      const res = await fetch(`${config.API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

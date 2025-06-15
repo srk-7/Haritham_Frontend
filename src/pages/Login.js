@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import config from '../config';
 
 function setCookie(name, value, days) {
   let expires = "";
@@ -67,7 +68,7 @@ export default function Login() {
     }
 
     try {
-      const res = await fetch("http://localhost:8081/api/users/login", {
+      const res = await fetch(`${config.API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { RefreshCw, CheckCircle, BarChart2, Users } from 'lucide-react';
+import config from '../config';
 
 // Modal Component for Status Update
 const StatusUpdateModal = ({ isOpen, onClose, currentStatus, onUpdateStatus, loading }) => {
@@ -179,7 +180,7 @@ const ViewOrders = ({ sellerId }) => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/api/orders/seller/${sellerId}`)
+      .get(`${config.API_URL}/api/orders/seller/${sellerId}`)
       .then((res) => {
         const sortedOrders = res.data.sort((a, b) => 
           new Date(b.orderDate) - new Date(a.orderDate)
@@ -209,7 +210,7 @@ const ViewOrders = ({ sellerId }) => {
 
     try {
       await axios.put(
-        `http://localhost:8081/api/orders/${selectedOrder.id}/status`,
+        `${config.API_URL}/api/orders/${selectedOrder.id}/status`,
         formData,
         {
           headers: {

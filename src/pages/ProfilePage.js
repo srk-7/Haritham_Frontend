@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { X, Users, Calendar, TrendingUp, DollarSign, Package, BarChart2, Store } from "lucide-react";
+import config from '../config';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -28,7 +29,7 @@ export default function ProfilePage() {
 
   const fetchSellerDetails = async (sellerId) => {
     try {
-      const response = await axios.get(`http://localhost:8081/api/users/${sellerId}`);
+      const response = await axios.get(`${config.API_URL}/api/users/${sellerId}`);
       setSellerDetails(prev => ({
         ...prev,
         [sellerId]: response.data
@@ -40,7 +41,7 @@ export default function ProfilePage() {
 
   const fetchProductBuyers = async (productId) => {
     try {
-      const response = await axios.get(`http://localhost:8081/api/orders/product/${productId}`);
+      const response = await axios.get(`${config.API_URL}/api/orders/product/${productId}`);
       const buyers = response.data.map(order => ({
         ...order,
         buyerName: order.buyerName || "Unknown Buyer",
@@ -74,10 +75,10 @@ export default function ProfilePage() {
     }
 
     axios
-      .get(`http://localhost:8081/api/users/${userId}`)
+      .get(`${config.API_URL}/api/users/${userId}`)
       .then((res) => {
         setUser(res.data);
-        return axios.get(`http://localhost:8081/api/users/${userId}/orders`);
+        return axios.get(`${config.API_URL}/api/users/${userId}/orders`);
       })
       .then((res) => {
         setOrdersPlaced(res.data);
@@ -87,7 +88,7 @@ export default function ProfilePage() {
             fetchSellerDetails(order.sellerId);
           }
         });
-        return axios.get(`http://localhost:8081/api/products/seller/${userId}`);
+        return axios.get(`${config.API_URL}/api/products/seller/${userId}`);
       })
       .then((res) => {
         setSellingProducts(res.data);
@@ -108,7 +109,7 @@ export default function ProfilePage() {
     formData.append("status", "COLLECTED");
 
     axios
-      .put(`http://localhost:8081/api/orders/${orderId}/status`, formData, {
+      .put(`${config.API_URL}/api/orders/${orderId}/status`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then(() => fetchProfileData())
