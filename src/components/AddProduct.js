@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Upload, Package, AlertCircle, CheckCircle, X } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, X } from "lucide-react";
 
 const AddProduct = ({ onSuccess }) => {
   const sellerId = Cookies.get("userId");
