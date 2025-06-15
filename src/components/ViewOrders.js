@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { RefreshCw, CheckCircle, BarChart2, Users } from 'lucide-react';
 
 // Modal Component for Status Update
 const StatusUpdateModal = ({ isOpen, onClose, currentStatus, onUpdateStatus, loading }) => {
@@ -134,21 +135,33 @@ const SellerOrderCard = ({ order, onUpdateStatus, isUpdating }) => {
       {order.status === "COLLECTED" ? (
         <button
           disabled
-          className="w-full py-2 px-4 rounded font-medium bg-green-500 text-white cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium bg-green-100 text-green-600 cursor-not-allowed"
         >
-          Order Fulfilled
+          <CheckCircle className="h-4 w-4" />
+          <span>Order Fulfilled</span>
         </button>
       ) : (
         <button
           onClick={() => onUpdateStatus(order)}
           disabled={isUpdating}
-          className={`w-full py-2 px-4 rounded font-medium transition-colors ${
+          className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-colors ${
             isUpdating
-              ? "bg-gray-400 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              ? "bg-secondary-100 text-secondary-400 cursor-not-allowed"
+              : "bg-primary-100 text-primary-600 hover:bg-primary-200"
           }`}
+          title="Update Order Status"
         >
-          {isUpdating ? "Updating..." : "Update Status"}
+          {isUpdating ? (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span>Updating...</span>
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4" />
+              <span>Update Status</span>
+            </>
+          )}
         </button>
       )}
     </div>
@@ -258,8 +271,28 @@ const ViewOrders = ({ sellerId }) => {
     <>
       <div className="p-4 max-w-7xl mx-auto">
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Orders</h2>
-          <p className="text-gray-600">Manage and track your customer orders</p>
+          <h2 className="text-3xl font-bold text-secondary-900 mb-2">Your Orders</h2>
+          <p className="text-secondary-600">Manage and track your customer orders</p>
+          
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => {/* Add analytics handler */}}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
+              title="View Analytics"
+            >
+              <BarChart2 className="h-4 w-4" />
+              <span>Analytics</span>
+            </button>
+            
+            <button
+              onClick={() => {/* Add view buyers handler */}}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-secondary-100 text-secondary-600 hover:bg-secondary-200 transition-colors"
+              title="View Buyers"
+            >
+              <Users className="h-4 w-4" />
+              <span>View Buyers</span>
+            </button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

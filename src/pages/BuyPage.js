@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import { CheckCircle, Search, Filter, X } from "lucide-react";
@@ -17,15 +17,24 @@ export default function BuyPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [outOfStockItems, setOutOfStockItems] = useState({});
 
+  // Function to handle product purchase
+  const handleBuy = () => {
+    setShowSuccessModal(true);
+    setTimeout(() => {
+      setShowSuccessModal(false);
+      window.location.reload();
+    }, 2500);
+  };
+
   // Function to check and remove out-of-stock items
-  const checkOutOfStockItems = () => {
+  const checkOutOfStockItems = useCallback(() => {
     const now = Date.now();
     const newOutOfStockItems = { ...outOfStockItems };
     let hasChanges = false;
 
-    // Remove items that have been out of stock for more than 60 minutes
+    // Remove items that have been out of stock for more than 2 minutes
     Object.entries(newOutOfStockItems).forEach(([productId, timestamp]) => {
-      if (now - timestamp > 60 * 60 * 1000) { // 60 minutes in milliseconds
+      if (now - timestamp > 2 * 60 * 1000) { // 2 minutes in milliseconds
         delete newOutOfStockItems[productId];
         hasChanges = true;
       }
@@ -34,13 +43,44 @@ export default function BuyPage() {
     if (hasChanges) {
       setOutOfStockItems(newOutOfStockItems);
     }
-  };
+  }, [outOfStockItems]);
 
   // Set up interval to check out-of-stock items
   useEffect(() => {
-    const interval = setInterval(checkOutOfStockItems, 60000); // Check every minute
+    const interval = setInterval(checkOutOfStockItems, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
-  }, [outOfStockItems]);
+  }, [checkOutOfStockItems]);
+
+  // Filter products based on search, price range, and category
+  useEffect(() => {
+    let filtered = [...products];
+
+    // Filter out invisible products
+    filtered = filtered.filter(product => product.visible !== false);
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply price range filter
+    filtered = filtered.filter(
+      product =>
+        (!priceRange.min || product.pricePerUnit >= priceRange.min) &&
+        (!priceRange.max || product.pricePerUnit <= priceRange.max)
+    );
+
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(product =>
+        product.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [searchQuery, priceRange, selectedCategory, products]);
 
   useEffect(() => {
     const fetchProductsAndSellers = async () => {
@@ -48,15 +88,6 @@ export default function BuyPage() {
         const { data } = await axios.get("http://localhost:8081/api/products/all");
         const reversedProducts = Array.isArray(data) ? [...data].reverse() : [];
         
-        // Update out-of-stock items
-        const newOutOfStockItems = { ...outOfStockItems };
-        reversedProducts.forEach(product => {
-          if (product.quantityAvailable === 0 && !outOfStockItems[product.id]) {
-            newOutOfStockItems[product.id] = Date.now();
-          }
-        });
-        setOutOfStockItems(newOutOfStockItems);
-
         setProducts(reversedProducts);
         setFilteredProducts(reversedProducts);
 
@@ -89,59 +120,12 @@ export default function BuyPage() {
     fetchProductsAndSellers();
   }, []);
 
-  useEffect(() => {
-    let filtered = [...products];
-
-    // Filter out items that have been out of stock for more than 60 minutes
-    filtered = filtered.filter(product => {
-      if (product.quantityAvailable === 0) {
-        const outOfStockTime = outOfStockItems[product.id];
-        if (!outOfStockTime || Date.now() - outOfStockTime <= 60 * 60 * 1000) {
-          return true; // Keep items that just went out of stock or within 60 minutes
-        }
-        return false; // Remove items that have been out of stock for more than 60 minutes
-      }
-      return true; // Keep all in-stock items
-    });
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply price range filter
-    filtered = filtered.filter(
-      product =>
-        (!priceRange.min || product.pricePerUnit >= priceRange.min) &&
-        (!priceRange.max || product.pricePerUnit <= priceRange.max)
-    );
-
-    // Apply category filter
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(product =>
-        product.category?.toLowerCase() === selectedCategory.toLowerCase()
-      );
-    }
-
-    setFilteredProducts(filtered);
-  }, [searchQuery, priceRange, selectedCategory, products, outOfStockItems]);
-
-  const handleBuy = () => {
-    setShowSuccessModal(true);
-    setTimeout(() => {
-      setShowSuccessModal(false);
-      window.location.reload();
-    }, 2500);
-  };
-
   const categories = ["all", "vegetables", "fruits", "dairy", "grains"];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -161,8 +145,8 @@ export default function BuyPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-green-800 mb-2">Fresh Market</h1>
-        <p className="text-gray-600">Find the freshest local produce from our trusted farmers</p>
+        <h1 className="text-3xl font-bold text-primary-800 mb-2">Fresh Market</h1>
+        <p className="text-secondary-600">Find the freshest local produce from our trusted farmers</p>
       </div>
 
       {/* Search and Filter Bar */}
@@ -173,14 +157,14 @@ export default function BuyPage() {
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
-          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-secondary-400" />
         </div>
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50"
         >
           <Filter className="h-5 w-5" />
           Filters
@@ -198,10 +182,10 @@ export default function BuyPage() {
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
+                <h3 className="text-lg font-semibold text-secondary-800">Filters</h3>
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-secondary-500 hover:text-secondary-700"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -209,7 +193,7 @@ export default function BuyPage() {
 
               {/* Category Filter */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Categories</h4>
+                <h4 className="text-sm font-medium text-secondary-700 mb-3">Categories</h4>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((category) => (
                     <button
@@ -217,8 +201,8 @@ export default function BuyPage() {
                       onClick={() => setSelectedCategory(category)}
                       className={`px-3 py-1 rounded-full text-sm ${
                         selectedCategory === category
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-primary-600 text-white"
+                          : "bg-secondary-100 text-secondary-700 hover:bg-secondary-200"
                       }`}
                     >
                       {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -229,7 +213,7 @@ export default function BuyPage() {
 
               {/* Price Range Filter */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Price Range</h4>
+                <h4 className="text-sm font-medium text-secondary-700 mb-3">Price Range</h4>
                 <div className="flex items-center gap-4">
                   <input
                     type="number"
@@ -237,17 +221,17 @@ export default function BuyPage() {
                     onChange={(e) =>
                       setPriceRange({ ...priceRange, min: e.target.value ? Number(e.target.value) : "" })
                     }
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-24 px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Min"
                   />
-                  <span className="text-gray-500">to</span>
+                  <span className="text-secondary-500">to</span>
                   <input
                     type="number"
                     value={priceRange.max}
                     onChange={(e) =>
                       setPriceRange({ ...priceRange, max: e.target.value ? Number(e.target.value) : "" })
                     }
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-24 px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Max"
                   />
                 </div>
@@ -261,7 +245,7 @@ export default function BuyPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProducts.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+            <p className="text-secondary-500 text-lg">No products found matching your criteria.</p>
           </div>
         ) : (
           filteredProducts.map((product) => (
@@ -270,6 +254,7 @@ export default function BuyPage() {
               product={product}
               sellerName={sellers[product.sellerId]}
               onBuy={handleBuy}
+              isOutOfStock={outOfStockItems[product.id]}
             />
           ))
         )}
@@ -279,20 +264,26 @@ export default function BuyPage() {
       <AnimatePresence>
         {showSuccessModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <motion.div
-              className="bg-white rounded-lg p-6 flex flex-col items-center shadow-xl"
-              initial={{ scale: 0.7, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg p-6 max-w-sm w-full mx-4"
             >
-              <CheckCircle className="text-green-600 w-16 h-16 mb-4 animate-bounce" />
-              <p className="text-xl font-semibold text-green-800">Order placed successfully!</p>
+              <div className="flex items-center justify-center mb-4">
+                <CheckCircle className="h-12 w-12 text-primary-600" />
+              </div>
+              <h3 className="text-lg font-medium text-center text-secondary-900 mb-2">
+                Purchase Successful!
+              </h3>
+              <p className="text-center text-secondary-600">
+                Your order has been placed successfully. The seller will contact you shortly.
+              </p>
             </motion.div>
           </motion.div>
         )}
@@ -300,3 +291,4 @@ export default function BuyPage() {
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, LogIn, ShoppingCart, Store, User, Home } from "lucide-react";
+import { Menu, X, LogOut, LogIn, ShoppingCart, Store, User, Home, Lock } from "lucide-react";
 import logo from "../assets/HARITHAM.png";
+import UpdatePassword from "./UpdatePassword";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function Navbar() {
   const user = JSON.parse(localStorage.getItem("user"));
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLogout = () => {
@@ -62,6 +64,26 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-green-700 to-green-800 text-white shadow-lg fixed top-0 left-0 right-0 z-50">
+      {/* Password Update Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-gray-900">Update Password</h3>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <UpdatePassword onSuccess={() => setShowPasswordModal(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo + Brand */}
@@ -89,10 +111,6 @@ export default function Navbar() {
                   <Store className="w-5 h-5" />
                   <span>Sell</span>
                 </Link>
-                <Link to="/profile" className={navLinkClass('/profile')}>
-                  <User className="w-5 h-5" />
-                  <span>Profile</span>
-                </Link>
               </>
             )}
 
@@ -112,6 +130,24 @@ export default function Navbar() {
                         <p className="font-medium text-sm">{user.name}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-3 text-left hover:bg-gray-50 flex items-center text-sm transition-colors duration-200"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setShowPasswordModal(true);
+                          setDropdownOpen(false);
+                        }}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center text-sm transition-colors duration-200"
+                      >
+                        <Lock className="w-4 h-4 mr-2" />
+                        Update Password
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center text-sm transition-colors duration-200 text-red-600"
@@ -174,14 +210,6 @@ export default function Navbar() {
               >
                 <Store className="w-5 h-5" />
                 <span>Sell</span>
-              </Link>
-              <Link 
-                to="/profile" 
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive('/profile') ? 'bg-green-600' : 'hover:bg-green-600/50'}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <User className="w-5 h-5" />
-                <span>Profile</span>
               </Link>
               <div className="px-4 py-3 border-t border-green-700/50">
                 <div className="flex items-center space-x-3 mb-3">

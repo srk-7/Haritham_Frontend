@@ -101,44 +101,72 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-green-700">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-primary-700">
+            Create Your Account
+          </h2>
+          <p className="mt-2 text-center text-sm text-secondary-600">
+            Join our sustainable community
+          </p>
+        </div>
 
-      {message && (
-        <p
-          className={`mb-4 text-sm ${
-            message.includes("successful") ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {["empId", "name", "mobile", "password"].map(field => (
-          <div key={field}>
-            <input
-              type={field === "password" ? "password" : "text"}
-              name={field}
-              value={form[field]}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder={getFieldName(field)}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            />
-            {getError(field) && (
-              <p className="text-sm text-red-500 mt-1">{getError(field)}</p>
-            )}
+        {message && (
+          <div
+            className={`rounded-md p-4 ${
+              message.includes("successful")
+                ? "bg-primary-50 text-primary-700"
+                : "bg-red-50 text-red-700"
+            }`}
+          >
+            <p className="text-sm">{message}</p>
           </div>
-        ))}
+        )}
 
-        <button
-          type="submit"
-          className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 transition"
-        >
-          Register
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            {["empId", "name", "mobile", "password"].map(field => (
+              <div key={field}>
+                <label htmlFor={field} className="block text-sm font-medium text-secondary-700">
+                  {getFieldName(field)}
+                </label>
+                <input
+                  id={field}
+                  type={field === "password" ? "password" : "text"}
+                  name={field}
+                  value={form[field]}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder={`Enter your ${getFieldName(field).toLowerCase()}`}
+                  className="mt-1 block w-full px-3 py-2 border border-secondary-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+                {getError(field) && (
+                  <p className="mt-1 text-sm text-red-600">{getError(field)}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Create Account
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-secondary-600">
+            Already have an account?{" "}
+            <a href="/login" className="font-medium text-primary-600 hover:text-primary-500">
+              Sign in
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

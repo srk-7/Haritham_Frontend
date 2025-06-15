@@ -44,7 +44,6 @@ export default function Login() {
       return "Invalid Mobile Number";
     }
 
-
     return "";
   };
 
@@ -103,73 +102,105 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-green-700">Login</h2>
-  
-      {message && (
-        <p
-          className={`mb-4 text-sm ${
-            message.includes("successful") ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
-  
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div>
-          <input
-            type="text"
-            name="mobile"
-            value={form.mobile}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="Mobile"
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {getError("mobile") && (
-            <p className="text-sm text-red-500 mt-1">{getError("mobile")}</p>
-          )}
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-primary-700">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-center text-sm text-secondary-600">
+            Sign in to your Haritham account
+          </p>
         </div>
-  
-        <div>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="Password"
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {getError("password") && (
-            <p className="text-sm text-red-500 mt-1">{getError("password")}</p>
-          )}
+
+        {message && (
+          <div
+            className={`rounded-md p-4 ${
+              message.includes("successful")
+                ? "bg-primary-50 text-primary-700"
+                : "bg-red-50 text-red-700"
+            }`}
+          >
+            <p className="text-sm">{message}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="mobile" className="block text-sm font-medium text-secondary-700">
+                Mobile Number
+              </label>
+              <input
+                id="mobile"
+                type="text"
+                name="mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter your mobile number"
+                className="mt-1 block w-full px-3 py-2 border border-secondary-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              />
+              {getError("mobile") && (
+                <p className="mt-1 text-sm text-red-600">{getError("mobile")}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-secondary-700">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter your password"
+                className="mt-1 block w-full px-3 py-2 border border-secondary-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              />
+              {getError("password") && (
+                <p className="mt-1 text-sm text-red-600">{getError("password")}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-secondary-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-secondary-500">Or</span>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center space-y-4">
+            <p className="text-sm text-secondary-600">
+              New to Haritham?{" "}
+              <a href="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                Create an account
+              </a>
+            </p>
+            <p className="text-sm">
+              <a href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                Forgot your password?
+              </a>
+            </p>
+          </div>
         </div>
-  
-        <button
-          type="submit"
-          className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 transition"
-        >
-          Login
-        </button>
-      </form>
-  
-      {/* Footer Links */}
-      <div className="mt-6 text-sm text-center text-gray-600">
-        <p className="mb-2">
-          New to Haritham?{" "}
-          <a href="/register" className="text-green-700 font-medium hover:underline">
-            Register here
-          </a>
-        </p>
-        <p>
-          <a href="/forgot-password" className="text-green-700 hover:underline">
-            Forgot password?
-          </a>
-        </p>
       </div>
     </div>
   );
-  
 }

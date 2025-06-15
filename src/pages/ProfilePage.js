@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { X, Users, Calendar, TrendingUp, DollarSign, Package, BarChart2 } from "lucide-react";
+import { X, Users, Calendar, TrendingUp, DollarSign, Package, BarChart2, Store } from "lucide-react";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -65,7 +65,7 @@ export default function ProfilePage() {
     setShowBuyersModal(true);
   };
 
-  const fetchProfileData = () => {
+  const fetchProfileData = useCallback(() => {
     const userId = getCookie("userId");
     if (!userId) {
       setError("User not logged in.");
@@ -97,11 +97,11 @@ export default function ProfilePage() {
         setError(err.response?.data?.message || "Failed to fetch data");
         setLoading(false);
       });
-  };
+  }, [sellerDetails]);
 
   useEffect(() => {
     fetchProfileData();
-  }, []);
+  }, [fetchProfileData]);
 
   const markAsCollected = (orderId) => {
     const formData = new FormData();
@@ -154,151 +154,195 @@ export default function ProfilePage() {
   const sortedOrders = [...ordersPlaced].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-6">
-      {/* Profile Summary */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start bg-white rounded-lg shadow-lg p-6 mb-6 border border-gray-200">
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-800 text-white flex items-center justify-center text-2xl font-bold mr-4">
-          {userInitials}
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* User Profile Header */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-start space-x-6">
+            <div className="w-20 h-20 bg-green-100 text-green-800 flex items-center justify-center rounded-full text-2xl font-bold">
+              {userInitials}
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{user.name}</h1>
+              <div className="space-y-2">
+                <div className="flex items-center text-gray-600">
+                  <span className="font-medium w-24">UID:</span>
+                  <span>{user.empId}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <span className="font-medium w-24">Mobile:</span>
+                  <span>{user.mobile}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
-          <p className="text-gray-600">Employee ID: {user.empId}</p>
-          <p className="text-gray-600">Mobile: {user.mobile}</p>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex -mb-px">
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`py-4 px-6 text-sm font-medium ${
+                  activeTab === "orders"
+                    ? "border-b-2 border-green-500 text-green-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <Package className="w-5 h-5 inline-block mr-2" />
+                Orders
+              </button>
+              <button
+                onClick={() => setActiveTab("selling")}
+                className={`py-4 px-6 text-sm font-medium ${
+                  activeTab === "selling"
+                    ? "border-b-2 border-green-500 text-green-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <Store className="w-5 h-5 inline-block mr-2" />
+                Selling
+              </button>
+            </nav>
+          </div>
         </div>
-      </div>
 
-      {/* Tab Controls */}
-      <div className="flex space-x-4 mb-4 border-b border-gray-300 pb-2">
-        <button
-          className={`px-4 py-2 rounded-t-md font-semibold ${
-            activeTab === "orders"
-              ? "bg-white border border-b-0 border-gray-300 text-blue-700"
-              : "text-gray-500 hover:text-blue-600"
-          }`}
-          onClick={() => setActiveTab("orders")}
-        >
-          Orders Placed ({sortedOrders.length})
-        </button>
-        <button
-          className={`px-4 py-2 rounded-t-md font-semibold ${
-            activeTab === "products"
-              ? "bg-white border border-b-0 border-gray-300 text-blue-700"
-              : "text-gray-500 hover:text-blue-600"
-          }`}
-          onClick={() => setActiveTab("products")}
-        >
-          My Selling Products ({sellingProducts.length})
-        </button>
-      </div>
+        {/* Tab Content */}
+        <div className="bg-white rounded-lg shadow">
+          {activeTab === "orders" && (
+            sortedOrders.length === 0 ? (
+              <p className="text-gray-600 p-6">No orders placed yet.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {sortedOrders.map((order) => (
+                  <li
+                    key={order.id}
+                    className="p-6 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-800">{order.productName}</h3>
+                      <span className="text-sm text-gray-500">{new Date(order.orderDate).toLocaleString()}</span>
+                    </div>
 
-      {/* Tab Content */}
-      <div className="bg-white rounded-b-lg shadow-lg border border-gray-300 p-4 sm:p-6">
-        {activeTab === "orders" ? (
-          sortedOrders.length === 0 ? (
-            <p className="text-gray-600">No orders placed yet.</p>
-          ) : (
-            <ul className="space-y-6">
-              {sortedOrders.map((order) => (
-                <li
-                  key={order.id}
-                  className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-all bg-gray-50"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-gray-800">{order.productName}</h3>
-                    <span className="text-sm text-gray-500">{new Date(order.orderDate).toLocaleString()}</span>
-                  </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Order Details</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-500">Quantity</span>
+                            <span className="text-sm font-medium text-gray-700">{order.quantityOrdered}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-500">Total</span>
+                            <span className="text-sm font-medium text-green-600">₹{order.totalPrice}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-500">Status</span>
+                            <span
+                              className={`text-sm font-medium ${
+                                order.status === "PACKED"
+                                  ? "text-blue-600"
+                                  : order.status === "PLACED_ON_HARITHAM_TABLE"
+                                  ? "text-green-600"
+                                  : order.status === "COLLECTED"
+                                  ? "text-gray-500"
+                                  : "text-yellow-600"
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Order Details</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-500">Quantity</span>
-                          <span className="text-sm font-medium text-gray-700">{order.quantityOrdered}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-500">Total</span>
-                          <span className="text-sm font-medium text-green-600">₹{order.totalPrice}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-500">Status</span>
-                          <span
-                            className={`text-sm font-medium ${
-                              order.status === "PACKED"
-                                ? "text-blue-600"
-                                : order.status === "PLACED_ON_HARITHAM_TABLE"
-                                ? "text-green-600"
-                                : order.status === "COLLECTED"
-                                ? "text-gray-500"
-                                : "text-yellow-600"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Seller Details</h4>
+                        {sellerDetails[order.sellerId] ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Name</span>
+                              <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].name}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Employee ID</span>
+                              <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].empId}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Mobile</span>
+                              <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].mobile}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <p className="text-gray-500 text-sm">Loading seller details...</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">Seller Details</h4>
-                      {sellerDetails[order.sellerId] ? (
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-500">Name</span>
-                            <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].name}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-500">Employee ID</span>
-                            <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].empId}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-500">Mobile</span>
-                            <span className="text-sm font-medium text-gray-700">{sellerDetails[order.sellerId].mobile}</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <p className="text-gray-500 text-sm">Loading seller details...</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    {order.status === "PLACED_ON_HARITHAM_TABLE" && (
+                      <div className="flex justify-end mt-4">
+                        <button
+                          onClick={() => markAsCollected(order.id)}
+                          className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-all"
+                        >
+                          Mark as Collected
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )
+          )}
 
-                  {order.status === "PLACED_ON_HARITHAM_TABLE" && (
-                    <div className="flex justify-end">
+          {activeTab === "selling" && (
+            sellingProducts.length === 0 ? (
+              <p className="text-gray-600 p-6">Not selling any products.</p>
+            ) : (
+              <div className="grid gap-6 p-6 sm:grid-cols-2 lg:grid-cols-3">
+                {sellingProducts.map((product) => (
+                  <div key={product.id} className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-all">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Category:</span> {product.category}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Price:</span> ₹{product.pricePerUnit}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Available:</span> {product.quantityAvailable}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 mt-3">
                       <button
-                        onClick={() => markAsCollected(order.id)}
-                        className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-all"
+                        onClick={() => handleViewBuyers(product)}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-primary-100 text-primary-600 hover:bg-primary-200 rounded-lg transition-colors"
+                        title="View Buyers"
                       >
-                        Mark as Collected
+                        <Users className="h-4 w-4" />
+                        <span className="text-sm font-medium">Buyers</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleViewBuyers(product);
+                          setAnalyticsView("analytics");
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-secondary-100 text-secondary-600 hover:bg-secondary-200 rounded-lg transition-colors"
+                        title="View Analytics"
+                      >
+                        <BarChart2 className="h-4 w-4" />
+                        <span className="text-sm font-medium">Analytics</span>
                       </button>
                     </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )
-        ) : sellingProducts.length === 0 ? (
-          <p className="text-gray-600">Not selling any products.</p>
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {sellingProducts.map((product) => (
-              <li key={product.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md bg-white">
-                <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-                <p className="text-sm text-gray-600">Category: {product.category}</p>
-                <p className="text-sm text-gray-600">Price: ₹{product.pricePerUnit}</p>
-                <p className="text-sm text-gray-600">Available: {product.quantityAvailable}</p>
-                <button
-                  onClick={() => handleViewBuyers(product)}
-                  className="mt-3 w-full py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Users className="h-5 w-5" />
-                  <span>View Buyers & Analytics</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+        </div>
 
         {/* Buyers Modal */}
         {showBuyersModal && selectedProduct && (
