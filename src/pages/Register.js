@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -10,7 +12,6 @@ export default function Register() {
   });
 
   const [touched, setTouched] = useState({});
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = e => {
@@ -53,7 +54,6 @@ export default function Register() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setMessage("");
 
     const fields = ["empId", "name", "mobile", "password"];
     const newTouched = {};
@@ -66,7 +66,7 @@ export default function Register() {
 
     if (hasError) {
       setTouched(newTouched);
-      setMessage("Please fix the errors in the form.");
+      toast.error("Please fix the errors in the form.");
       return;
     }
 
@@ -91,12 +91,12 @@ export default function Register() {
         throw new Error(friendlyMessage);
       }
 
-      setMessage("✅ Registration successful! Redirecting to login...");
+      toast.success("Registration successful! Redirecting to login...");
       setForm({ empId: "", name: "", mobile: "", password: "" });
       setTouched({});
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setMessage(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -111,18 +111,6 @@ export default function Register() {
             Join our sustainable community
           </p>
         </div>
-
-        {message && (
-          <div
-            className={`rounded-md p-4 ${
-              message.includes("successful")
-                ? "bg-primary-50 text-primary-700"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
-            <p className="text-sm">{message}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
@@ -167,6 +155,18 @@ export default function Register() {
           </p>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

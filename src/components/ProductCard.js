@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { ShoppingCart, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ProductCard({ product, sellerName, onBuy }) {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +29,7 @@ export default function ProductCard({ product, sellerName, onBuy }) {
     const buyerId = getCookieValue("userId");
 
     if (!buyerId) {
-      alert("Please login to place an order.");
+      toast.error("Please login to place an order.");
       return;
     }
 
@@ -49,9 +51,10 @@ export default function ProductCard({ product, sellerName, onBuy }) {
       onBuy && onBuy(product, orderQuantity);
       setShowModal(false);
       setOrderQuantity(1);
+      toast.success("Order placed successfully!");
     } catch (error) {
       console.error("Order Error:", error);
-      alert("Failed to place order. Please try again.");
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
@@ -237,6 +240,18 @@ export default function ProductCard({ product, sellerName, onBuy }) {
           </motion.div>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

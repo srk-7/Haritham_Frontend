@@ -146,7 +146,7 @@ export default function BuyPage() {
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-primary-800 mb-2">Fresh Market</h1>
-        <p className="text-secondary-600">Find the freshest local produce from our trusted farmers</p>
+        <p className="text-secondary-600">Discover the finest local produce and organic products</p>
       </div>
 
       {/* Search and Filter Bar */}

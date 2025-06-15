@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function setCookie(name, value, days) {
   let expires = "";
@@ -14,7 +16,6 @@ function setCookie(name, value, days) {
 export default function Login() {
   const [form, setForm] = useState({ mobile: "", password: "" });
   const [touched, setTouched] = useState({});
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = e => {
@@ -49,7 +50,6 @@ export default function Login() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setMessage("");
 
     const fields = ["mobile", "password"];
     const newTouched = {};
@@ -62,7 +62,7 @@ export default function Login() {
 
     if (hasError) {
       setTouched(newTouched);
-      setMessage("Please fix the errors in the form.");
+      toast.error("Please fix the errors in the form.");
       return;
     }
 
@@ -91,13 +91,13 @@ export default function Login() {
       setCookie("userId", user.id, 7);
       localStorage.setItem("user", JSON.stringify(user));
 
-      setMessage("✅ Login successful! Redirecting...");
+      toast.success("Login successful! Redirecting...");
       setTimeout(() => {
         navigate("/");
         window.location.reload();
       }, 1000);
     } catch (err) {
-      setMessage(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -112,18 +112,6 @@ export default function Login() {
             Sign in to your Haritham account
           </p>
         </div>
-
-        {message && (
-          <div
-            className={`rounded-md p-4 ${
-              message.includes("successful")
-                ? "bg-primary-50 text-primary-700"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
-            <p className="text-sm">{message}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
@@ -193,14 +181,21 @@ export default function Login() {
                 Create an account
               </a>
             </p>
-            <p className="text-sm">
-              <a href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
-                Forgot your password?
-              </a>
-            </p>
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
